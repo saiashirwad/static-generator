@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
-import { access, mkdir, readdir, stat } from "fs/promises";
-import { basename, dirname, extname, join, relative } from "path";
+import { access, mkdir, readdir, stat } from "node:fs/promises";
+import { basename, dirname, extname, join, relative } from "node:path";
 
 // ========================================
 // Global Configuration

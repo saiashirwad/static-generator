@@ -3,30 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portfolio and thoughts from a design-focused developer">
+  <meta name="author" content="{{ siteTitle }}">
   <title>{{ title }} | {{ siteTitle }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   {{ css }}
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
-  <header>
-    <nav class="main-nav">
-      <div class="logo">
-        <a href="/">{{ siteTitle }}</a>
+  <div class="page-wrapper">
+    <header class="site-header">
+      <div class="container">
+        <nav class="main-nav">
+          <div class="brand">
+            <a href="/" class="logo">{{ siteTitle }}</a>
+          </div>
+          
+          <div class="nav-container">
+            <ul class="nav-links">
+              <li><a href="/blog/index.html">Blog</a></li>
+              <li><a href="/notes/index.html">Notes</a></li>
+              <li><a href="/projects/index.html">Notes</a></li>
+            </ul>
+            
+            <button class="theme-toggle" aria-label="Toggle dark/light mode">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+              </svg>
+            </button>
+          </div>
+        </nav>
       </div>
-      <ul class="nav-links">
-        <li><a href="/blog/index.html">Blog</a></li>
-        <li><a href="/notes/index.html">Notes</a></li>
-      </ul>
-    </nav>
-  </header>
-  
-  <main class="container">
-    {{ content }}
-  </main>
-  
-  <footer>
-    <div class="container">
-      <p>© {{ siteTitle }} - Made with Bun SSG</p>
-    </div>
-  </footer>
+    </header>
+    
+    <main class="site-content">
+      <div class="container">
+        {{ content }}
+      </div>
+    </main>
+    
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <span class="footer-logo">{{ siteTitle }}</span>
+            <p class="footer-tagline">Crafting digital experiences with precision and purpose.</p>
+          </div>
+          
+          <div class="footer-links">
+            <h3>Navigation</h3>
+            <ul>
+              <li><a href="/about.html">About</a></li>
+              <li><a href="/work.html">Portfolio</a></li>
+              <li><a href="/blog/index.html">Blog</a></li>
+              <li><a href="/notes/index.html">Notes</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-social">
+            <h3>Connect</h3>
+            <div class="social-icons">
+              <a href="https://github.com/" aria-label="GitHub">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg>
+              </a>
+              <a href="https://twitter.com/" aria-label="Twitter/X">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+              </a>
+              <a href="https://linkedin.com/" aria-label="LinkedIn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"></path></svg>
+              </a>
+              <a href="https://dribbble.com/" aria-label="Dribbble">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.372 0 0 5.373 0 12s5.372 12 12 12 12-5.373 12-12S18.628 0 12 0zm9.885 11.441c-2.575-.422-4.943-.445-7.103-.073a42.153 42.153 0 00-.767-1.68c2.31-1 4.165-2.358 5.548-4.082a9.863 9.863 0 012.322 5.835zm-3.842-7.282c-1.205 1.554-2.868 2.783-4.986 3.68a46.287 46.287 0 00-3.488-5.438A9.894 9.894 0 0112 2.087c2.275 0 4.368.779 6.043 2.072zM7.527 3.166a44.59 44.59 0 013.537 5.381c-2.43.715-5.331 1.082-8.684 1.105a9.931 9.931 0 015.147-6.486zM2.087 12l.013-.256c3.849-.005 7.169-.448 9.95-1.322.233.475.456.95.67 1.424-3.38 1.057-6.165 3.222-8.337 6.48A9.865 9.865 0 012.087 12zm3.829 7.81c1.969-3.088 4.482-5.098 7.598-6.027a39.137 39.137 0 012.043 7.46c-3.349 1.291-6.953.666-9.641-1.433zm11.586.43a41.098 41.098 0 00-1.92-6.897c1.876-.265 3.94-.196 6.199.196a9.923 9.923 0 01-4.279 6.701z"></path></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>© {{ siteTitle }} {{ year }} • Crafted with care</p>
+          <p class="tech-stack">Built with <a href="https://bun.sh" target="_blank" rel="noopener">Bun SSG</a></p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Simple theme toggle functionality
+    document.querySelector('.theme-toggle')?.addEventListener('click', () => {
+      document.body.classList.toggle('light-theme');
+      localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+    });
+    
+    // Check for saved theme preference
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light-theme');
+    }
+  </script>
 </body>
 </html> 
