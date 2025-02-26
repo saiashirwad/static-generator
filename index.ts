@@ -38,6 +38,93 @@ interface SiteConfig {
   [key: string]: any; // Allow for additional custom properties
 }
 
+// Front Matter interface
+interface FrontMatter {
+  title?: string;
+  date?: string;
+  description?: string;
+  layout?: string;
+  tags?: string[];
+  image?: string;
+  author?: string;
+  github?: string;
+  demo?: string;
+  category?: string;
+  draft?: boolean;
+  [key: string]: any; // Allow for any additional front matter properties
+}
+
+// Extract front matter from markdown content
+function extractFrontMatter(content: string): { frontMatter: FrontMatter; content: string } {
+  // Default empty front matter
+  const defaultResult = {
+    frontMatter: {},
+    content: content
+  };
+  
+  // Check if content starts with front matter delimiter
+  if (!content.startsWith('---')) {
+    return defaultResult;
+  }
+  
+  // Find the closing delimiter
+  const endOfFrontMatter = content.indexOf('---', 3);
+  if (endOfFrontMatter === -1) {
+    console.warn('Front matter appears to be improperly formatted (missing closing delimiter)');
+    return defaultResult;
+  }
+  
+  // Extract the front matter content
+  const frontMatterRaw = content.substring(3, endOfFrontMatter).trim();
+  
+  // Extract the content after front matter
+  const contentWithoutFrontMatter = content.substring(endOfFrontMatter + 3).trim();
+  
+  // Parse the front matter as key-value pairs
+  const frontMatter: FrontMatter = {};
+  
+  try {
+    // Parse each line in the front matter
+    const lines = frontMatterRaw.split('\n');
+    for (const line of lines) {
+      const colonIndex = line.indexOf(':');
+      if (colonIndex > 0) {
+        const key = line.substring(0, colonIndex).trim();
+        let value = line.substring(colonIndex + 1).trim();
+        
+        // Handle arrays in square brackets
+        if (value.startsWith('[') && value.endsWith(']')) {
+          try {
+            // Remove brackets and split by commas
+            const arrayString = value.substring(1, value.length - 1);
+            if (arrayString.trim()) {
+              const items = arrayString.split(',').map(item => item.trim());
+              frontMatter[key] = items;
+            } else {
+              frontMatter[key] = [];
+            }
+          } catch (e) {
+            console.warn(`Failed to parse array value for ${key}: ${value}`);
+            frontMatter[key] = value;
+          }
+        } else {
+          frontMatter[key] = value;
+        }
+      }
+    }
+    
+    console.log(`📄 Extracted front matter:`, frontMatter);
+    
+    return {
+      frontMatter,
+      content: contentWithoutFrontMatter
+    };
+  } catch (error) {
+    console.warn(`Failed to parse front matter: ${error}`);
+    return defaultResult;
+  }
+}
+
 // Simple Markdown to HTML converter that preserves HTML
 function markdownToHtml(markdown: string): string {
   // Convert headers
@@ -99,10 +186,14 @@ async function applyLayout(
   title: string, 
   config: SiteConfig, 
   layoutName?: string,
-  currentPath?: string
+  currentPath?: string,
+  frontMatter?: FrontMatter
 ): Promise<string> {
+  // Use layout from front matter if specified
+  const layoutToUse = frontMatter?.layout || layoutName || config.defaultLayout || 'default';
+  
   // Try to load the specified layout or fall back to default
-  let layout = await loadLayout(layoutName || config.defaultLayout || 'default', config);
+  let layout = await loadLayout(layoutToUse, config);
   
   if (layout) {
     // Calculate relative path to CSS file from current location
@@ -127,10 +218,23 @@ async function applyLayout(
     // Replace standard placeholders
     layout = layout
       .replace(/\{\{\s*content\s*\}\}/g, content)
-      .replace(/\{\{\s*title\s*\}\}/g, title)
+      .replace(/\{\{\s*title\s*\}\}/g, frontMatter?.title || title)
       .replace(/\{\{\s*css\s*\}\}/g, cssPath ? `<link rel="stylesheet" href="${cssPath}">` : '')
       .replace(/\{\{\s*siteTitle\s*\}\}/g, config.siteTitle || 'My Site')
-      .replace(/\{\{\s*year\s*\}\}/g, new Date().getFullYear().toString());
+      .replace(/\{\{\s*year\s*\}\}/g, new Date().getFullYear().toString())
+      .replace(/\{\{\s*description\s*\}\}/g, frontMatter?.description || config.siteDescription || '')
+      .replace(/\{\{\s*author\s*\}\}/g, frontMatter?.author || config.siteAuthor || '');
+    
+    // Replace any additional front matter variables
+    if (frontMatter) {
+      for (const [key, value] of Object.entries(frontMatter)) {
+        if (typeof value === 'string') {
+          layout = layout.replace(new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g'), value);
+        } else if (Array.isArray(value)) {
+          layout = layout.replace(new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g'), value.join(', '));
+        }
+      }
+    }
     
     // Replace any additional config variables
     // This allows for custom variables in templates
@@ -144,7 +248,7 @@ async function applyLayout(
   }
   
   // Fall back to basic template if no layout is found
-  return wrapWithTemplate(content, title, config.cssFile 
+  return wrapWithTemplate(content, frontMatter?.title || title, config.cssFile 
     ? basename(config.cssFile)
     : undefined);
 }
@@ -177,6 +281,21 @@ function wrapWithTemplate(content: string, title: string, cssPath?: string): str
 </html>`;
 }
 
+// Format a date string into a more readable format
+function formatDate(dateString: string): string {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (e) {
+    console.warn(`Invalid date format: ${dateString}`);
+    return dateString;
+  }
+}
+
 // Process an individual file
 async function processFile(
   filePath: string, 
@@ -200,25 +319,34 @@ async function processFile(
     return null;
   }
   
+  // Extract front matter and markdown content
+  const { frontMatter, content: markdownContent } = extractFrontMatter(content);
+  
   // Process markdown file
   console.log(`🔄 Converting markdown to HTML: ${filePath}`);
-  const htmlContent = markdownToHtml(content);
+  const htmlContent = markdownToHtml(markdownContent);
   const outputRelPath = relPath.replace(/\.md$/, '.html');
-  const title = fileBasename.charAt(0).toUpperCase() + fileBasename.slice(1);
   
-  // Get front matter for layout specification if available
-  let layoutName = config.defaultLayout || 'default';
+  // Use title from front matter or generate from filename
+  const title = frontMatter.title || 
+    (fileBasename.charAt(0).toUpperCase() + fileBasename.slice(1));
   
   // Get current relative path for proper link generation
   const currentRelPath = relative(config.contentDir, dirname(filePath));
+  
+  // Format date for display if present
+  if (frontMatter.date) {
+    frontMatter.formattedDate = formatDate(frontMatter.date);
+  }
   
   // Apply layout
   const finalHtml = await applyLayout(
     htmlContent,
     isIndex ? (config.siteTitle || 'Home') : title,
     config,
-    layoutName,
-    currentRelPath
+    undefined, // Let applyLayout use frontMatter.layout if specified
+    currentRelPath,
+    frontMatter
   );
   
   const outputPath = join(config.outputDir, outputRelPath);
@@ -244,12 +372,12 @@ async function copyAsset(filePath: string, config: SiteConfig): Promise<void> {
 async function processDirectory(
   dirPath: string, 
   config: SiteConfig,
-  linksForIndex: { path: string; title: string }[] = [],
+  linksForIndex: { path: string; title: string; description?: string; date?: string }[] = [],
   currentDepth: number = 0
-): Promise<{ path: string; title: string }[]> {
+): Promise<{ path: string; title: string; description?: string; date?: string }[]> {
   console.log(`📂 Processing directory: ${dirPath}`);
   const entries = await readdir(dirPath, { withFileTypes: true });
-  const folderLinks: { path: string; title: string }[] = [];
+  const folderLinks: { path: string; title: string; description?: string; date?: string }[] = [];
   let hasIndex = false;
   
   // Check if directory has an index.md file
@@ -271,11 +399,28 @@ async function processDirectory(
         const outputRelPath = await processFile(filePath, config, isIndex);
         
         if (outputRelPath && !isIndex) {
-          const title = basename(filePath, ext).charAt(0).toUpperCase() + basename(filePath, ext).slice(1);
-          folderLinks.push({ path: outputRelPath, title });
+          // Extract front matter to get title, description, and date for links
+          const file = Bun.file(filePath);
+          const content = await file.text();
+          const { frontMatter } = extractFrontMatter(content);
+          
+          const title = frontMatter.title || 
+            basename(filePath, ext).charAt(0).toUpperCase() + basename(filePath, ext).slice(1);
+          
+          folderLinks.push({ 
+            path: outputRelPath, 
+            title,
+            description: frontMatter.description,
+            date: frontMatter.date
+          });
           
           // Always add to global links list with proper paths
-          linksForIndex.push({ path: outputRelPath, title });
+          linksForIndex.push({ 
+            path: outputRelPath, 
+            title,
+            description: frontMatter.description,
+            date: frontMatter.date
+          });
         }
       } else if (ext !== '.ts' && ext !== '.js') {
         // Copy other assets except TypeScript/JavaScript files
@@ -290,7 +435,7 @@ async function processDirectory(
       const subDirPath = join(dirPath, entry.name);
       
       // Pass empty array as localized links for the subdirectory
-      const subLocalLinks: { path: string; title: string }[] = [];
+      const subLocalLinks: { path: string; title: string; description?: string; date?: string }[] = [];
       await processDirectory(subDirPath, config, linksForIndex, currentDepth + 1);
       
       // Add subdirectory link to current folder's links
@@ -314,7 +459,7 @@ async function processDirectory(
 // Generate an index for a specific folder
 async function generateFolderIndex(
   dirPath: string, 
-  links: { path: string; title: string }[], 
+  links: { path: string; title: string; description?: string; date?: string }[], 
   config: SiteConfig
 ): Promise<void> {
   const relativePath = relative(config.contentDir, dirPath);
@@ -324,11 +469,16 @@ async function generateFolderIndex(
   const folderName = basename(dirPath);
   const title = folderName.charAt(0).toUpperCase() + folderName.slice(1);
   
-  // Sort links alphabetically by title
-  links.sort((a, b) => a.title.localeCompare(b.title));
+  // Sort links by date if available, then alphabetically by title
+  links.sort((a, b) => {
+    if (a.date && b.date) {
+      return new Date(b.date).getTime() - new Date(a.date).getTime(); // Newest first
+    }
+    return a.title.localeCompare(b.title);
+  });
   
   // Generate index content
-  let indexContent = `<h1>${title}</h1>\n<ul class="content-list">`;
+  let indexContent = `<h1>${title}</h1>\n<div class="post-list">`;
   
   for (const link of links) {
     // Ensure we have proper URL path format with forward slashes
@@ -353,10 +503,23 @@ async function generateFolderIndex(
     }
     
     console.log(`   Link: ${linkPath} => ${adjustedPath}`);
-    indexContent += `\n  <li><a href="${adjustedPath}">${link.title}</a></li>`;
+    
+    indexContent += `\n  <div class="post-item">
+    <a href="${adjustedPath}" class="post-title">${link.title}</a>`;
+    
+    if (link.date) {
+      indexContent += `\n    <div class="post-date">${formatDate(link.date)}</div>`;
+    }
+    
+    if (link.description) {
+      indexContent += `\n    <div class="post-excerpt">${link.description}</div>`;
+    }
+    
+    indexContent += `\n    <a href="${adjustedPath}" class="read-more">Read more</a>
+  </div>`;
   }
   
-  indexContent += '\n</ul>';
+  indexContent += '\n</div>';
   
   // Apply layout to the generated index
   const finalHtml = await applyLayout(
@@ -364,7 +527,8 @@ async function generateFolderIndex(
     title,
     config,
     undefined,
-    relativePath
+    relativePath,
+    { title }
   );
   
   // Write the index file
@@ -376,7 +540,7 @@ async function generateFolderIndex(
 }
 
 // Generate root index if needed
-async function generateIndexIfNeeded(config: SiteConfig, links: { path: string; title: string }[]): Promise<void> {
+async function generateIndexIfNeeded(config: SiteConfig, links: { path: string; title: string; description?: string; date?: string }[]): Promise<void> {
   const indexPath = join(config.contentDir, 'index.md');
   
   // Check if an index file already exists
