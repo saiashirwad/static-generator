@@ -1,0 +1,301 @@
+/* Texoport-inspired Minimal Style with Doom Emacs dark theme */
+:root {
+  /* Doom Emacs dark theme as default */
+  --bg-color: #282c34;
+  --text-color: #bbc2cf;
+  --border-color: #3f444e;
+  --link-color: #51afef;
+  --accent-color: #3d4451;
+  --code-bg: #23272e;
+  
+  /* Doom Emacs accent colors */
+  --doom-blue: #51afef;
+  --doom-purple: #c678dd;
+  --doom-green: #98be65;
+  --doom-yellow: #ecbe7b;
+  --doom-red: #ff6c6b;
+  --doom-orange: #da8548;
+  --doom-teal: #4db5bd;
+  
+  --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-main);
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  line-height: 1.6;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Header */
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.site-title {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.site-nav a {
+  color: var(--text-color);
+}
+
+/* Profile */
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.profile-image {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.profile-name {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.social-links a {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.social-links a svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Content */
+.content {
+  margin-top: 2rem;
+}
+
+.content p {
+  margin-bottom: 1.5rem;
+}
+
+.content a {
+  text-decoration: underline;
+}
+
+/* Alert box */
+.alert {
+  background-color: var(--accent-color);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+/* Navbar styles */
+.main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.logo a {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--doom-blue);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none; /* Remove bullets */
+  gap: 2rem;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  color: var(--doom-teal);
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+/* Theme toggle - if you want to keep it as a visual element without functionality */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--doom-blue);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--doom-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  background-color: rgba(81, 175, 239, 0.1);
+}
+
+/* Code styling */
+code {
+  font-family: monospace;
+  background-color: var(--code-bg);
+  color: var(--doom-green);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+pre {
+  background-color: var(--code-bg);
+  padding: 1rem;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Markdown styling */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--doom-blue);
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+ul, ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+blockquote {
+  border-left: 4px solid var(--doom-purple);
+  padding-left: 1rem;
+  font-style: italic;
+  margin: 1.5rem 0;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 2rem 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.5rem 0;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+th, td {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+th {
+  background-color: var(--accent-color);
+}
+
+/* Blog */
+.post-list {
+  margin-top: 2rem;
+}
+
+.post-item {
+  margin-bottom: 1.5rem;
+}
+
+.post-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--doom-blue);
+}
+
+.post-date {
+  font-size: 0.9rem;
+  color: var(--doom-yellow);
+  margin-bottom: 0.5rem;
+} 
