@@ -1,7 +1,11 @@
-# Welcome to My Professional Site
+---
+title: Your Site Title
+---
+
+# Welcome to My Site
 
 <div class="profile">
-  <img src="https://github.com/identicons/jasonlong.png" alt="Profile Image" class="profile-image">
+  <img src="media/sai.png" alt="Profile Image" class="profile-image">
   <h1 class="profile-name">John Doe</h1>
   <div class="social-links">
     <a href="https://github.com/johndoe">
